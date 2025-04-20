@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Article with LaTeX and Three.js</title>
+
+  <style>
+    body {
+      font-family: Georgia, serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 400px;
+      margin: 1em 0;
+      border: 1px solid #ccc;
+    }
+
+    h1, h2 {
+      margin-top: 2rem;
+    }
+
+    figure {
+      margin: 2em 0;
+    }
+
+    figcaption {
+      font-size: 0.9em;
+      color: #555;
+      text-align: center;
+    }
+  </style>
+
+  <!-- MathJax -->
+  <script type="text/javascript" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+</head>
+<body>
+  <h1>Rotation</h1>
+
+  <p>inline: \( a^2 + b^2 = c^2 \).</p>
+
+  <p>block:</p>
+  <p>
+    \[
+      \pi
+    \]
+  </p>
+
+  <p>Rotation 1</p>
+
+  <figure>
+    <canvas id="three1"></canvas>
+    <figcaption>Rotating cube</figcaption>
+  </figure>
+
+  <p>Rotation 2</p>
+
+  <figure>
+    <canvas id="three2"></canvas>
+    <figcaption>Rotating torus</figcaption>
+  </figure>
+
+  <p>How to calculate rotation?</p>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
