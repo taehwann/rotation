@@ -44,32 +44,168 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
-  <h1>Rotation</h1>
+  <h1>Rotation in 3D</h1>
 
-  <p>inline: \( a^2 + b^2 = c^2 \).</p>
-
-  <p>block:</p>
+  <h2>1. Representing Points as Vectors</h2>
+  <p>
+    In 3D space, a point is usually represented as a vector:
+  </p>
   <p>
     \[
-      \pi
+      \mathbf{v} = \begin{bmatrix} x \\ y \\ z \end{bmatrix}
+    \]
+  </p>
+  <p>
+    Rotating a point means applying a transformation to this vector.
+  </p>
+
+  <h2>2. Euler Angles and Rotation Matrices</h2>
+  <p>
+    A common way to represent 3D rotation is using Euler angles: rotations around the X, Y, and Z axes.
+  </p>
+  <p>
+    For example, rotating around the Z-axis by an angle \( \theta \) is given by:
+  </p>
+  <p>
+    \[
+    R_z(\theta) = 
+    \begin{bmatrix}
+      \cos\theta & -\sin\theta & 0 \\ 
+      \sin\theta & \cos\theta & 0 \\ 
+      0 & 0 & 1
+    \end{bmatrix}
+    \]
+  </p>
+  <p>
+    You can combine these to rotate around all three axes:
+  </p>
+  <p>
+    \[
+    R = R_z(\gamma) R_y(\beta) R_x(\alpha)
     \]
   </p>
 
-  <p>Rotation 1</p>
-
   <figure>
     <canvas id="three1"></canvas>
-    <figcaption>Rotating cube</figcaption>
+    <figcaption>Euler rotation applied to a cube</figcaption>
+    <div id="controls1">
+      <label>X (°): <input name="rx" type="range" min="0" max="360" step="1" value="30"></label>
+      <label>Y (°): <input name="ry" type="range" min="0" max="360" step="1" value="30"></label>
+      <label>Z (°): <input name="rz" type="range" min="0" max="360" step="1" value="30"></label>
+    </div>
   </figure>
 
-  <p>Rotation 2</p>
+  <h2>3. Gimbal Lock</h2>
+  <p>
+    Gimbal lock occurs when two of the three rotational axes align, resulting in a loss of one degree of freedom.
+  </p>
+  <p>
+    This makes some orientations unreachable and is a limitation of using Euler angles for rotation.
+  </p>
+
+  <h2>4. Rodrigues' Rotation Formula</h2>
+  <p>
+    Rodrigues' formula allows you to rotate a vector \( \mathbf{v} \) around a unit axis \( \mathbf{k} \) by an angle \( \theta \):
+  </p>
+  <p>
+    \[
+    \mathbf{v}_{\text{rot}} = 
+      \mathbf{v} \cos\theta +
+      (\mathbf{k} \times \mathbf{v}) \sin\theta +
+      \mathbf{k}(\mathbf{k} \cdot \mathbf{v})(1 - \cos\theta)
+    \]
+  </p>
+  <p>
+    This is more robust than Euler angles and does not suffer from gimbal lock.
+  </p>
 
   <figure>
     <canvas id="three2"></canvas>
-    <figcaption>Rotating torus</figcaption>
+    <figcaption>Rodrigues rotation applied to a torus</figcaption>
+    <div id="controls2">
+      <label>Axis X: <input name="ax" type="range" min="-1" max="1" step="0.01" value="1"></label>
+      <label>Axis Y: <input name="ay" type="range" min="-1" max="1" step="0.01" value="0"></label>
+      <label>Axis Z: <input name="az" type="range" min="-1" max="1" step="0.01" value="0"></label>
+      <label>Angle (°): <input name="angle" type="range" min="0" max="360" step="1" value="60"></label>
+    </div>
   </figure>
 
-  <p>How to calculate rotation?</p>
+  <p>
+    You can also express Rodrigues' formula as a rotation matrix:
+  </p>
+  <p>
+    \[
+    R = I + \sin\theta K + (1 - \cos\theta)K^2
+    \]
+    where \( K \) is the skew-symmetric matrix derived from \( \mathbf{k} \).
+  </p>
+
+  <h2>5. Quaternion Rotation</h2>
+
+  <h3>What is a Quaternion?</h3>
+  <p>
+    A quaternion is a 4D number that can represent 3D rotations. It has the form:
+    \[
+    q = w + xi + yj + zk
+    \]
+    where \( w, x, y, z \) are real numbers, and \( i, j, k \) are the fundamental quaternion units.
+  </p>
+  <p>
+    Quaternions provide a compact and smooth way to represent 3D rotations, avoiding issues like gimbal lock, which is common in Euler angles.
+  </p>
+
+  <h3>How Quaternion Represents Rotation</h3>
+  <p>
+    A unit quaternion represents a rotation around a unit axis by an angle \( \theta \). The general form is:
+    \[
+    q = \cos\left(\frac{\theta}{2}\right) + \sin\left(\frac{\theta}{2}\right)(xi + yj + zk)
+    \]
+    where \( (x, y, z) \) is the unit vector along the axis of rotation, and \( \theta \) is the rotation angle.
+  </p>
+
+  <h3>Quaternion to Rotation Matrix</h3>
+  <p>
+    A quaternion can be converted to a 3×3 rotation matrix. Given a quaternion \( q = (x, y, z, w) \), the corresponding rotation matrix is:
+    \[
+    R = \begin{bmatrix}
+      1 - 2(y^2 + z^2) & 2(xy - zw) & 2(xz + yw) \\
+      2(xy + zw) & 1 - 2(x^2 + z^2) & 2(yz - xw) \\
+      2(xz - yw) & 2(yz + xw) & 1 - 2(x^2 + y^2)
+    \end{bmatrix}
+    \]
+  </p>
+
+  <h3>SLERP (Spherical Linear Interpolation)</h3>
+  <p>
+    SLERP is a technique for interpolating between two quaternions in a smooth and consistent way, maintaining constant velocity along the rotation arc. It is often used in animations and 3D graphics to interpolate between orientations.
+  </p>
+
+  <figure>
+    <canvas id="three4"></canvas>
+    <figcaption>Quaternion SLERP Example: Rotating Sphere Orbiting Fixed Sphere</figcaption>
+  </figure>
+
+  <div id="controls4">
+    <label for="t4">Interpolation factor (t) for SLERP:</label>
+    <input type="range" name="t" min="0" max="1" step="0.01" value="0" id="t4">
+    <span id="t4Value">t = 0</span>
+  </div>
+
+  <h3>SQUAD (Spherical and Quadrangle Interpolation)</h3>
+  <p>
+    SQUAD is an advanced interpolation technique that uses extra control points to provide even smoother transitions between quaternions. It is often used for more complex animations and camera transitions.
+  </p>
+
+  <figure>
+    <canvas id="three5"></canvas>
+    <figcaption>Quaternion SQUAD Example: Smooth Animation of Orbiting Sphere</figcaption>
+  </figure>
+
+  <div id="controls5">
+    <label for="t5">Interpolation factor (t) for SQUAD:</label>
+    <input type="range" name="t" min="0" max="1" step="0.01" value="0" id="t5">
+    <span id="t5Value">t = 0</span>
+  </div>
 
   <script type="module" src="app.js"></script>
 </body>
